@@ -1,0 +1,10 @@
+{
+  "realm": "react-keyclock",
+  "auth-server-url": "http://127.0.0.1:8080/auth/",
+  "ssl-required": "none",
+  "resource": "restcli",
+  "credentials": {
+    "secret": "7da19512-f77d-45de-898f-de276c643875"
+  },
+  "confidential-port": 0
+}
