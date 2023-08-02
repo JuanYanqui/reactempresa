@@ -7,6 +7,15 @@ import { Button } from 'primereact/button';
 import { CSSTransition } from 'react-transition-group';
 import { RTLContext } from './App';
 
+
+const handleLogout = () => {
+    localStorage.removeItem('nombrecap');
+    localStorage.removeItem('apellidocap');
+    localStorage.removeItem('emailcap');
+    const keycloakConfig = JSON.parse(localStorage.getItem('keycloakConfig'));
+    window.location.href = keycloakConfig.url + 'realms/' + keycloakConfig.realm + '/protocol/openid-connect/logout?redirect_uri=' + encodeURIComponent(window.location.origin);
+};
+
 const AppTopbar = (props) => {
     const isRTL = useContext(RTLContext);
     const navigate = useNavigate();
@@ -452,7 +461,7 @@ const AppTopbar = (props) => {
                                             <span>Support</span>
                                         </button>
                                     </li>
-                                    <li className="layout-topbar-action-item">
+                                    <li className="layout-topbar-action-item" onClick={handleLogout}>
                                         <button className="flex flex-row align-items-center p-link">
                                             <i className={classNames('pi pi-power-off', { 'mr-2': !isRTL, 'ml-2': isRTL })}></i>
                                             <span>Logout</span>

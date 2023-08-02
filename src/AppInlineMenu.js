@@ -3,7 +3,20 @@ import { classNames } from 'primereact/utils';
 import { useContext, useRef } from 'react';
 import { RTLContext } from './App';
 import { Tooltip } from 'primereact/tooltip';
+const usuario = localStorage.getItem('usernamecap');
+const nombre = localStorage.getItem('nombrecap');
+const apellido = localStorage.getItem('apellidocap');
+const gmail = localStorage.getItem('gmail');
 
+const handleLogout = () => {
+    localStorage.removeItem('usernamecap');
+   localStorage.removeItem('nombrecap');
+   localStorage.removeItem('apellidocap');
+   localStorage.removeItem('emailcap');
+
+    const keycloakConfig = JSON.parse(localStorage.getItem('keycloakConfig'));
+    window.location.href = keycloakConfig.url + 'realms/' + keycloakConfig.realm + '/protocol/openid-connect/logout?redirect_uri=' + encodeURIComponent(window.location.origin);
+};
 const AppInlineMenu = (props) => {
     const inlineMenuRef = useRef(null);
     const isRTL = useContext(RTLContext);
@@ -32,11 +45,12 @@ const AppInlineMenu = (props) => {
             >
                 <img src="assets/demo/images/avatar/amyelsner.png" alt="avatar" style={{ width: '32px', height: '32px' }} />
                 <span className={classNames('flex flex-column', { 'ml-2': !isRTL, 'mr-2': isRTL })}>
-                    <span className="font-bold">Amy Elsner</span>
-                    <small>Webmaster</small>
+                    <span className="font-bold">{usuario}</span>
+                    <small></small>
                 </span>
                 <i className={classNames('layout-inline-menu-icon pi pi-angle-down', { 'ml-auto': !isRTL, 'mr-auto': isRTL })}></i>
             </button>
+
 
             <CSSTransition nodeRef={inlineMenuRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={props.inlineMenuActive[menuKey]} unmountOnExit>
                 <>
@@ -59,7 +73,7 @@ const AppInlineMenu = (props) => {
                                 <span>Support</span>
                             </button>
                         </li>
-                        <li className="layout-inline-menu-action-item tooltip" data-pr-tooltip="Logout">
+                        <li className="layout-inline-menu-action-item tooltip" data-pr-tooltip="Logout" onClick={handleLogout}>
                             <button className="flex flex-row align-items-center p-link">
                                 <i className="pi pi-power-off pi-fw"></i>
                                 <span>Logout</span>
@@ -74,3 +88,4 @@ const AppInlineMenu = (props) => {
 };
 
 export default AppInlineMenu;
+

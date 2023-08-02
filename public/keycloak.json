@@ -3,8 +3,10 @@
   "auth-server-url": "http://127.0.0.1:8080/auth/",
   "ssl-required": "none",
   "resource": "restcli",
+  "verify-token-audience": true,
   "credentials": {
-    "secret": "7da19512-f77d-45de-898f-de276c643875"
+    "secret": "ea3624d0-35eb-4300-b0c6-dcb0bf2d9603"
   },
-  "confidential-port": 0
+  "confidential-port": 0,
+  "policy-enforcer": {}
 }

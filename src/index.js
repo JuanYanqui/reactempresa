@@ -4,14 +4,12 @@ import { HashRouter } from 'react-router-dom';
 import AppWrapper from './AppWrapper';
 import reportWebVitals from './reportWebVitals';
 import Keycloak from 'keycloak-js';
-const _kc = new Keycloak('/keycloak.json');
+
 
 const keycloakConfig = {
-    realm: "react-keyclock",
+    realm: "prueba",
     url: "http://127.0.0.1:8080/auth/",
     clientId: "restcli",
-    clientSecret: "7da19512-f77d-45de-898f-de276c643875",
-    beareronly: true,
     onLoad: 'login-required',
   };
   
@@ -23,6 +21,7 @@ const initKeycloak = () => {
       keycloak.init({ onLoad: 'login-required' })
         .then((authenticated) => {
           if (authenticated) {
+            localStorage.setItem('keycloakConfig', JSON.stringify(keycloakConfig)); 
             resolve(keycloak);
           } else {
             reject(new Error('User not authenticated'));
@@ -35,19 +34,36 @@ const initKeycloak = () => {
   };
   
   initKeycloak()
-    .then((keycloak) => {
-      const root = ReactDOM.createRoot(document.getElementById('root'));
-      root.render(
-        <React.StrictMode>
-          <HashRouter>
-            <AppWrapper />
-          </HashRouter>
-        </React.StrictMode>
-      );
-      
-      reportWebVitals();
-    })
-    .catch((error) => {
-      console.error('Error initializing Keycloak:', error);
-      
-    });
+  .then((keycloak) => {
+    const usuario = keycloak.idTokenParsed.preferred_username;
+    const firstName = keycloak.idTokenParsed.given_name;
+    const lastName = keycloak.idTokenParsed.family_name;
+    const email = keycloak.idTokenParsed.email;
+    
+
+    console.log('username:', usuario);
+    localStorage.setItem('usernamecap', usuario);
+    console.log('Nombres:', firstName);
+    localStorage.setItem('nombrecap', firstName);
+    console.log('Apellidos:', lastName);
+    localStorage.setItem('apellidocap', lastName);
+    console.log('Email:', email);
+    localStorage.setItem('emailcap', email);
+
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+      <React.StrictMode>
+        <HashRouter>
+          <AppWrapper />
+        </HashRouter>
+      </React.StrictMode>
+    );
+
+    reportWebVitals();
+  })
+  .catch((error) => {
+    console.error('Error initializing Keycloak:', error);
+  });
+
+  
