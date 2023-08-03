@@ -4,6 +4,10 @@ import { HashRouter } from 'react-router-dom';
 import AppWrapper from './AppWrapper';
 import reportWebVitals from './reportWebVitals';
 import Keycloak from 'keycloak-js';
+import { useState } from 'react';
+import axios from 'axios';
+import Usuarioenco from './service/UsuarioEn';
+import UsuarioService from './service/UsuarioService'; 
 
 
 const keycloakConfig = {
@@ -56,6 +60,7 @@ const initKeycloak = () => {
       <React.StrictMode>
         <HashRouter>
           <AppWrapper />
+          <UsuarioService/>
         </HashRouter>
       </React.StrictMode>
     );
@@ -65,5 +70,3 @@ const initKeycloak = () => {
   .catch((error) => {
     console.error('Error initializing Keycloak:', error);
   });
-
-  

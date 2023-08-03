@@ -3,11 +3,11 @@ import { classNames } from 'primereact/utils';
 import { useContext, useRef } from 'react';
 import { RTLContext } from './App';
 import { Tooltip } from 'primereact/tooltip';
-const usuario = localStorage.getItem('usernamecap');
-const nombre = localStorage.getItem('nombrecap');
-const apellido = localStorage.getItem('apellidocap');
-const gmail = localStorage.getItem('gmail');
+import { useQuery } from 'react-query'; 
+import React, { useState } from 'react';
+import axios from 'axios';
 
+const usuario = localStorage.getItem('usernamecap');
 const handleLogout = () => {
     localStorage.removeItem('usernamecap');
    localStorage.removeItem('nombrecap');
@@ -67,7 +67,7 @@ const AppInlineMenu = (props) => {
                                 <span>Terms of Usage</span>
                             </button>
                         </li>
-                        <li className="layout-inline-menu-action-item tooltip" data-pr-tooltip="Support">
+                        <li className="layout-inline-menu-action-item tooltip" data-pr-tooltip="Support" >
                             <button className="flex flex-row align-items-center p-link">
                                 <i className="pi pi-compass pi-fw"></i>
                                 <span>Support</span>
