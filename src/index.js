@@ -4,9 +4,6 @@ import { HashRouter } from 'react-router-dom';
 import AppWrapper from './AppWrapper';
 import reportWebVitals from './reportWebVitals';
 import Keycloak from 'keycloak-js';
-import { useState } from 'react';
-import axios from 'axios';
-import Usuarioenco from './service/UsuarioEn';
 import UsuarioService from './service/UsuarioService'; 
 
 
@@ -60,7 +57,7 @@ const initKeycloak = () => {
       <React.StrictMode>
         <HashRouter>
           <AppWrapper />
-          <Usuarioenco/>
+          <UsuarioService/>
         </HashRouter>
       </React.StrictMode>
     );
