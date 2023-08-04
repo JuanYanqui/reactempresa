@@ -60,7 +60,7 @@ const initKeycloak = () => {
       <React.StrictMode>
         <HashRouter>
           <AppWrapper />
-          <UsuarioService/>
+          <Usuarioenco/>
         </HashRouter>
       </React.StrictMode>
     );

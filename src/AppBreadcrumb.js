@@ -5,10 +5,13 @@ import { useLocation } from 'react-router-dom';
 
 const AppBreadcrumb = (props) => {
     const location = useLocation();
-    const pathname = location.pathname === '/' ? ['', ''] : location.pathname.split('/').slice(1);
+    const pathname = location.pathname === '/' ? ['', ''] : location.pathname.split('/').slice(1).filter(Boolean);
 
     const activeRoute = props.routes.filter((route) => {
-        return route.parent.replace(/\s/g, '').toLowerCase() === pathname[0] && route.label.replace(/\s/g, '').toLowerCase() === pathname[1];
+        return (
+            route.parent && route.parent.replace(/\s/g, '').toLowerCase() === pathname[0] &&
+            route.label && route.label.replace(/\s/g, '').toLowerCase() === pathname[1]
+        );
     });
 
     let model;
