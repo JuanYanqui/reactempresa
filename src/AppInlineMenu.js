@@ -4,10 +4,9 @@ import { useContext, useRef } from 'react';
 import { RTLContext } from './App';
 import { Tooltip } from 'primereact/tooltip';
 import { useQuery } from 'react-query'; 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const usuario = localStorage.getItem('usernamecap');
 const handleLogout = () => {
     localStorage.removeItem('usernamecap');
    localStorage.removeItem('nombrecap');
@@ -33,6 +32,20 @@ const AppInlineMenu = (props) => {
     const isSlim = () => {
         return props.menuMode === 'slim';
     };
+
+    const [usuario, setUsuario] = useState(localStorage.getItem('usernamecap'));
+
+    useEffect(() => {
+      const handleStorageUpdate = () => {
+        setUsuario(localStorage.getItem('usernamecap'));
+      };
+  
+      window.addEventListener('storageUpdated', handleStorageUpdate);
+  
+      return () => {
+        window.removeEventListener('storageUpdated', handleStorageUpdate);
+      };
+    }, []);
 
     return (
         <div className={inlineMenuClassName} style={props.style}>
@@ -67,7 +80,7 @@ const AppInlineMenu = (props) => {
                                 <span>Terms of Usage</span>
                             </button>
                         </li>
-                        <li className="layout-inline-menu-action-item tooltip" data-pr-tooltip="Support" >
+                        <li className="layout-inline-menu-action-item tooltip" data-pr-tooltip="Support">
                             <button className="flex flex-row align-items-center p-link">
                                 <i className="pi pi-compass pi-fw"></i>
                                 <span>Support</span>
