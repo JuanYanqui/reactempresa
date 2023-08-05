@@ -47,7 +47,6 @@ import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import './App.scss';
 import { useNavigate } from 'react-router-dom';
-
 export const RTLContext = React.createContext();
 
 const App = ({ userData }) => {
@@ -80,45 +79,85 @@ const App = ({ userData }) => {
     let topbarItemClick;
     let menuClick;
     let inlineMenuClick;
-
     const navigate = useNavigate();
-
-    console.log(userData);
-    const generateMenuFromUserData = (userData) => {
-        if (!userData || !userData.object) {
-          return [];
+    const redirectToExternalUrl = (url) => {
+        if (url) {
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                console.log('External URL:', url);
+                window.location.replace(url);
+            } else {
+                console.log('Internal URL:', url);
+                navigate(url);
+            }
         }
-      
-        return userData.object.map((item) => ({
-          key: item.menId,
-          label: item.nombre,
-          icon: item.icono,
-          to: item.url,
-          items: item.hijos && item.hijos.map((hijo) => ({
-            key: hijo.menId,
-            label: hijo.nombre,
-            to: hijo.url
-             
-          }))
-        }));
-      };
+    };
 
-      
-
-      
-    const generateRoutesFromUserData = (userData) => {
+    const generateMenuFromUserData = (userData) => {
         if (!userData || !userData.object) {
             return [];
         }
 
         return userData.object.map((item) => ({
-            path: item.url,
-            element: <h1>{item.nombre}</h1>
+            key: item.menId,
+            label: item.nombre,
+            icon: item.icono,
+            to: item.url,
+            items: item.hijos && item.hijos.map((hijo) => ({
+                key: hijo.menId,
+                label: hijo.nombre,
+                to: hijo.url
+
+            }))
         }));
     };
+  
+
+    const generateRoutesFromUserData = (userData) => {
+        if (!userData || !userData.object) {
+            return [];
+        }
+
+        return userData.object.map((item) => {
+            if (item.external) {
+                return {
+                    path: item.url,
+                    element: (
+                        <a onClick={() => redirectToExternalUrl(item.url)}>{item.nombre}</a>
+                    ),
+                };
+            } else {
+                return {
+                    path: item.url,
+                    element: <h1>{item.nombre}</h1>,
+                };
+            }
+        });
+
+        
+    }
+
 
     const menu = generateMenuFromUserData(userData);
     const routes = generateRoutesFromUserData(userData);
+
+const onMenuItemClick = (event) => {
+    console.log('Clicked menu item:', event.item.to);
+    if (!event.item.items && (menuMode === 'overlay' || !isDesktop())) {
+        hideOverlayMenu();
+    }
+
+    if (!event.item.items && (isHorizontal() || isSlim())) {
+        setMenuActive(false);
+    }
+
+    if (event.item.to) {
+        const  url = event.item.to;
+        console.log('URL:', url);
+
+        redirectToExternalUrl(url); 
+    }
+};
+
 
     useEffect(() => {
         copyTooltipRef && copyTooltipRef.current && copyTooltipRef.current.updateTargetEvents();
@@ -194,21 +233,7 @@ const App = ({ userData }) => {
             setNewThemeLoaded(true);
         });
     };
-    const onMenuItemClick = (event) => {
-        if (!event.item.items && (menuMode === 'overlay' || !isDesktop())) {
-          hideOverlayMenu();
-        }
-    
-        if (!event.item.items && (isHorizontal() || isSlim())) {
-          setMenuActive(false);
-        }
-    
-        if (event.item.to) {
-          navigate(event.item.to);
-        }
-      };
 
-      
 
     const replaceLink = (linkElement, href, callback) => {
         if (isIE()) {
@@ -238,6 +263,7 @@ const App = ({ userData }) => {
             });
         }
     };
+
 
     const onInputStyleChange = (inputStyle) => {
         setInputStyle(inputStyle);
@@ -283,10 +309,12 @@ const App = ({ userData }) => {
         event.originalEvent.preventDefault();
     };
 
-    const onSearch = (event) => {
+   const onSearch = (event) => {
+    if (event) {
         searchClick = true;
         setSearchActive(event);
-    };
+    }
+};
 
 
     const onRootMenuItemClick = (event) => {
@@ -399,6 +427,8 @@ const App = ({ userData }) => {
                 />
 
                 <div className="menu-wrapper" onClick={onMenuClick}>
+
+
                     <div className="layout-menu-container">
                         {(inlineMenuPosition === 'top' || inlineMenuPosition === 'both') && <AppInlineMenu menuKey="top" inlineMenuActive={inlineMenuActive} onInlineMenuClick={onInlineMenuClick} horizontal={isHorizontal()} menuMode={menuMode} />}
                         <AppMenu model={menu} onMenuItemClick={onMenuItemClick} onRootMenuItemClick={onRootMenuItemClick} menuMode={menuMode} active={menuActive} />
@@ -409,12 +439,11 @@ const App = ({ userData }) => {
                 </div>
 
                 <div className="layout-main">
-                    <AppBreadcrumb routes={routes} />
+
                     <div className="layout-content">
                         <Routes>
-                            {routes.map((route) => (
-                                <Route key={route.path} path={route.path} element={route.element} />
-                            ))}
+                            <Route path="/" element={<Dashboard colorMode={colorMode} isNewThemeLoaded={newThemeLoaded} onNewThemeChange={(e) => setNewThemeLoaded(e)} location={location} />} />
+                            {/* ... Other routes ... */}
                         </Routes>
                     </div>
 

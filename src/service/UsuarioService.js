@@ -3,13 +3,15 @@ import App from '../App';
 
 const UsuarioService = () => {
 
-
       const [userData, setUserData] = useState(null);
   
       const [userData2, setUserData2] = useState(null);
   
+      ////////RECUPERA EL USUAERIO DEL LOCAL STORAGE PARA MANDAERLE A ACTUALIZAR////
+
       const [usuario, setUsuario] = useState(localStorage.getItem('nombrecap'));
   
+      ///////////ACTUALIZA LO QUE ESTA GUARDADO EN EL LOCALSTORAGE/////////
       useEffect(() => {
         const handleStorageUpdate = () => {
           setUsuario(localStorage.getItem('nombrecap'));
@@ -22,6 +24,7 @@ const UsuarioService = () => {
         };
       }, []);
   
+      ///////////////MANDA A EJECUTAR EL METODO FECH CON EL USUARIO OBTENIDO////////
       useEffect(() => {
         fetchUserData(usuario);
       }, []);
@@ -30,6 +33,8 @@ const UsuarioService = () => {
         fetchUserData2(usuario);
       }, []);
     
+
+      ///////////PETICION GET//////////////////////
       const fetchUserData = (usuario) => {
         const url = `http://wsgo.gerardoortiz.com/ApiJavadb/menuUsuario/menuAllUser?userId=${usuario}&app=APP`;
     
@@ -50,6 +55,8 @@ const UsuarioService = () => {
         xhr.send();
       };
   
+
+      //////////PETICION POST//////////////////////
       const fetchUserData2 = (usuario) => {
         const url = 'http://192.168.200.24:8080/javaws/ws/usuarios/getUsuario';
         const body = {
@@ -76,7 +83,7 @@ const UsuarioService = () => {
           });
       };
   
-      
+      //////MANDA EL OBJETO A LA SIGUIENTE VENTANA JS ////////////
       return (
         <>
           {userData && <App userData={userData} />},
