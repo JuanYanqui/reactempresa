@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { classNames } from 'primereact/utils';
 import { MegaMenu } from 'primereact/megamenu';
 import { useNavigate } from 'react-router-dom';
@@ -6,8 +6,13 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { CSSTransition } from 'react-transition-group';
 import { RTLContext } from './App';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import AppInlineMenu from './AppInlineMenu';
+import AppMenu from './AppMenu';
+import AppConfig from './AppConfig';
 
-
+import PrimeReact from 'primereact/api';
+import { Tooltip } from 'primereact/tooltip';
 const handleLogout = () => {
     localStorage.removeItem('nombrecap');
     localStorage.removeItem('apellidocap');
@@ -17,281 +22,208 @@ const handleLogout = () => {
 };
 
 const AppTopbar = (props) => {
-    const isRTL = useContext(RTLContext);
-    const navigate = useNavigate();
 
+    const navigate = useNavigate();
+    const [theme, setTheme] = useState('indigo');
+    const [menuMode, setMenuMode] = useState('static');
+    const [inlineMenuPosition, setInlineMenuPosition] = useState('bottom');
+    const [desktopMenuActive, setDesktopMenuActive] = useState(true);
+    const [mobileMenuActive, setMobileMenuActive] = useState(false);
+    const [activeTopbarItem, setActiveTopbarItem] = useState(null);
+    const [colorMode, setColorMode] = useState('dark');
+    const [rightMenuActive, setRightMenuActive] = useState(false);
+    const [menuActive, setMenuActive] = useState(false);
+    const [inputStyle, setInputStyle] = useState('filled');
+    const [isRTL, setRTL] = useState(false);
+    const [ripple, setRipple] = useState(true);
+    const [mobileTopbarActive, setMobileTopbarActive] = useState(false);
+    const [menuTheme, setMenuTheme] = useState('light');
+    const [topbarTheme, setTopbarTheme] = useState('blue');
+    const [isInputBackgroundChanged, setIsInputBackgroundChanged] = useState(false);
+    const [inlineMenuActive, setInlineMenuActive] = useState({});
+    const [newThemeLoaded, setNewThemeLoaded] = useState(false);
+    const [searchActive, setSearchActive] = useState(false);
+    const copyTooltipRef = useRef();
     const topbarRef1 = useRef(null);
     const topbarRef2 = useRef(null);
     const topbarRef3 = useRef(null);
     const topbarRef4 = useRef(null);
 
-    // Fixed for 6.1.0
-    // eslint-disable-next-line
-    const searchPanel = useRef(null);
+    useEffect(() => {
+        if (menuMode === 'overlay') {
+            hideOverlayMenu();
+        }
+        if (menuMode === 'static') {
+            setDesktopMenuActive(true);
+        }
+    }, [menuMode]);
 
     useEffect(() => {
-        // Fixed for 6.1.0
-        /*if (props.searchActive) {
-            searchPanel.current.element.focus();
-        }*/
-    }, [props.searchActive]);
+        onColorModeChange(colorMode);
+    }, []);
+    const onMenuThemeChange = (theme) => {
+        setMenuTheme(theme);
+    };
 
-    const onInputKeydown = (event) => {
-        const key = event.which;
+    const onTopbarThemeChange = (theme) => {
+        setTopbarTheme(theme);
+    };
 
-        //escape, tab and enter
-        if (key === 27 || key === 9 || key === 13) {
-            props.onSearch(false);
+    useEffect(() => {
+        const appLogoLink = document.getElementById('app-logo');
+
+        if (topbarTheme === 'white' || topbarTheme === 'yellow' || topbarTheme === 'amber' || topbarTheme === 'orange' || topbarTheme === 'lime') {
+            appLogoLink.src = 'assets/layout/images/logo-dark.svg';
+        } else {
+            appLogoLink.src = 'assets/layout/images/logo-light.svg';
+        }
+    }, [topbarTheme]);
+
+    const onThemeChange = (theme) => {
+        setTheme(theme);
+        const themeLink = document.getElementById('theme-css');
+        const themeHref = 'assets/theme/' + theme + '/theme-' + colorMode + '.css';
+        replaceLink(themeLink, themeHref);
+    };
+
+    const onColorModeChange = (mode) => {
+        setColorMode(mode);
+        setIsInputBackgroundChanged(true);
+
+        if (isInputBackgroundChanged) {
+            if (mode === 'dark') {
+                setInputStyle('filled');
+            } else {
+                setInputStyle('outlined');
+            }
+        }
+
+        if (mode === 'dark') {
+            setMenuTheme('dark');
+            setTopbarTheme('dark');
+        } else {
+            setMenuTheme('light');
+            setTopbarTheme('blue');
+        }
+
+        const layoutLink = document.getElementById('layout-css');
+        const layoutHref = 'assets/layout/css/layout-' + mode + '.css';
+        replaceLink(layoutLink, layoutHref);
+
+        const themeLink = document.getElementById('theme-css');
+        const urlTokens = themeLink.getAttribute('href').split('/');
+        urlTokens[urlTokens.length - 1] = 'theme-' + mode + '.css';
+        const newURL = urlTokens.join('/');
+
+        replaceLink(themeLink, newURL, () => {
+            setNewThemeLoaded(true);
+        });
+    };
+
+
+    const replaceLink = (linkElement, href, callback) => {
+        if (isIE()) {
+            linkElement.setAttribute('href', href);
+
+            if (callback) {
+                callback();
+            }
+        } else {
+            const id = linkElement.getAttribute('id');
+            const cloneLinkElement = linkElement.cloneNode(true);
+
+            cloneLinkElement.setAttribute('href', href);
+            cloneLinkElement.setAttribute('id', id + '-clone');
+
+            linkElement.parentNode.insertBefore(cloneLinkElement, linkElement.nextSibling);
+
+            cloneLinkElement.addEventListener('load', () => {
+                linkElement.remove();
+                const _linkElement = document.getElementById(id);
+                _linkElement && _linkElement.remove();
+                cloneLinkElement.setAttribute('id', id);
+
+                if (callback) {
+                    callback();
+                }
+            });
         }
     };
 
-    const model = [
-        {
-            label: 'UI KIT',
-            items: [
-                [
-                    {
-                        label: 'UI KIT 1',
-                        items: [
-                            {
-                                label: 'Form Layout',
-                                icon: 'pi pi-fw pi-id-card',
-                                command: () => {
-                                    navigate('/uikit/formlayout');
-                                }
-                            },
-                            {
-                                label: 'Input',
-                                icon: 'pi pi-fw pi-check-square',
-                                command: () => {
-                                    navigate('/uikit/input');
-                                }
-                            },
-                            {
-                                label: 'Float Label',
-                                icon: 'pi pi-fw pi-bookmark',
-                                command: () => {
-                                    navigate('/uikit/floatlabel');
-                                }
-                            },
-                            {
-                                label: 'Button',
-                                icon: 'pi pi-fw pi-mobile',
-                                command: () => {
-                                    navigate('/uikit/button');
-                                }
-                            },
-                            {
-                                label: 'File',
-                                icon: 'pi pi-fw pi-file',
-                                command: () => {
-                                    navigate('/uikit/file');
-                                }
-                            }
-                        ]
-                    }
-                ],
-                [
-                    {
-                        label: 'UI KIT 2',
-                        items: [
-                            {
-                                label: 'Table',
-                                icon: 'pi pi-fw pi-table',
-                                command: () => {
-                                    navigate('/uikit/table');
-                                }
-                            },
-                            {
-                                label: 'List',
-                                icon: 'pi pi-fw pi-list',
-                                command: () => {
-                                    navigate('/uikit/list');
-                                }
-                            },
-                            {
-                                label: 'Tree',
-                                icon: 'pi pi-fw pi-share-alt',
-                                command: () => {
-                                    navigate('/uikit/tree');
-                                }
-                            },
-                            {
-                                label: 'Panel',
-                                icon: 'pi pi-fw pi-tablet',
-                                command: () => {
-                                    navigate('/uikit/panel');
-                                }
-                            },
-                            {
-                                label: 'Chart',
-                                icon: 'pi pi-fw pi-chart-bar',
-                                command: () => {
-                                    navigate('/uikit/chart');
-                                }
-                            }
-                        ]
-                    }
-                ],
-                [
-                    {
-                        label: 'UI KIT 3',
-                        items: [
-                            {
-                                label: 'Overlay',
-                                icon: 'pi pi-fw pi-clone',
-                                command: () => {
-                                    navigate('/uikit/overlay');
-                                }
-                            },
-                            {
-                                label: 'Menu',
-                                icon: 'pi pi-fw pi-bars',
-                                command: () => {
-                                    navigate('/uikit/menu');
-                                }
-                            },
-                            {
-                                label: 'Message',
-                                icon: 'pi pi-fw pi-comment',
-                                command: () => {
-                                    navigate('/uikit/message');
-                                }
-                            },
-                            {
-                                label: 'Misc',
-                                icon: 'pi pi-fw pi-circle',
-                                command: () => {
-                                    navigate('/uikit/misc');
-                                }
-                            }
-                        ]
-                    }
-                ]
-            ]
-        },
-        {
-            label: 'PAGES',
-            items: [
-                [
-                    {
-                        label: 'PAGES 1',
-                        items: [
-                            {
-                                label: 'Access',
-                                icon: 'pi pi-fw pi-lock',
-                                command: () => {
-                                    navigate('/access');
-                                }
-                            },
-                            {
-                                label: 'Calendar',
-                                icon: 'pi pi-fw pi-calendar-plus',
-                                command: () => {
-                                    navigate('/pages/calendar');
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        label: 'PAGES 2',
-                        items: [
-                            {
-                                label: 'Crud',
-                                icon: 'pi pi-fw pi-pencil',
-                                command: () => {
-                                    navigate('/pages/crud');
-                                }
-                            },
-                            {
-                                label: 'Empty Page',
-                                icon: 'pi pi-fw pi-circle',
-                                command: () => {
-                                    navigate('/pages/empty');
-                                }
-                            }
-                        ]
-                    }
-                ],
-                [
-                    {
-                        label: 'PAGES 3',
-                        items: [
-                            {
-                                label: 'Timeline',
-                                icon: 'pi pi-fw pi-calendar',
-                                command: () => {
-                                    navigate('/pages/timeline');
-                                }
-                            },
-                            {
-                                label: 'Help',
-                                icon: 'pi pi-fw pi-question-circle',
-                                command: () => {
-                                    navigate('/pages/help');
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        label: 'PAGES 4',
-                        items: [
-                            {
-                                label: 'Invoice',
-                                icon: 'pi pi-fw pi-dollar',
-                                command: () => {
-                                    navigate('/pages/invoice');
-                                }
-                            },
-                            {
-                                label: 'Landing',
-                                icon: 'pi pi-fw pi-globe',
-                                command: () => {
-                                    navigate('/landing');
-                                }
-                            }
-                        ]
-                    }
-                ],
-                [
-                    {
-                        label: 'PAGES 5',
-                        items: [
-                            {
-                                label: 'Login',
-                                icon: 'pi pi-fw pi-sign-in',
-                                command: () => {
-                                    navigate('/login');
-                                }
-                            },
-                            {
-                                label: 'Not Found',
-                                icon: 'pi pi-fw pi-exclamation-circle',
-                                command: () => {
-                                    navigate('/notfound');
-                                }
-                            },
-                            {
-                                label: 'Error',
-                                icon: 'pi pi-fw pi-times-circle',
-                                command: () => {
-                                    navigate('/error');
-                                }
-                            }
-                        ]
-                    }
-                ]
-            ]
-        }
-    ];
 
+    const onInputStyleChange = (inputStyle) => {
+        setInputStyle(inputStyle);
+    };
+
+    const onRipple = (e) => {
+        PrimeReact.ripple = e.value;
+        setRipple(e.value);
+    };
+
+    const onInlineMenuPositionChange = (mode) => {
+        setInlineMenuPosition(mode);
+    };
+
+    const onMenuModeChange = (mode) => {
+        setMenuMode(mode);
+    };
+
+    const onRTLChange = () => {
+        setRTL((prevState) => !prevState);
+    };
+
+    const onRootMenuItemClick = (event) => {
+        setMenuActive((prevState) => !prevState);
+    };
+
+    const onRightMenuButtonClick = () => {
+        setRightMenuActive((prevState) => !prevState);
+    };
+
+    const onMobileTopbarButtonClick = (event) => {
+        setMobileTopbarActive((prevState) => !prevState);
+        event.preventDefault();
+    };
+
+
+    const hideOverlayMenu = () => {
+        setMobileMenuActive(false);
+        setDesktopMenuActive(false);
+    };
+
+    const isDesktop = () => {
+        return window.innerWidth > 1024;
+    };
+
+    const isHorizontal = () => {
+        return menuMode === 'horizontal';
+    };
+
+    const isSlim = () => {
+        return menuMode === 'slim';
+    };
+
+    const isIE = () => {
+        return /(MSIE|Trident\/|Edge\/)/i.test(window.navigator.userAgent);
+    };
+
+    const [showAppConfig, setShowAppConfig] = useState(false);
+
+    const toggleAppConfig = () => {
+        console.log("conn");
+        setShowAppConfig((prevShow) => !prevShow);
+        console.log(setShowAppConfig);
+    };
+    const botonEstilo = {
+        fontSize: '24px',
+    };
     return (
         <div className="layout-topbar shadow-4">
             <div className="layout-topbar-left">
                 <button type="button" style={{ cursor: 'pointer' }} className="layout-topbar-logo p-link" onClick={() => navigate('/')}>
-                    <img id="app-logo" src="assets/layout/images/logo-light.svg" alt="ultima-layout" style={{ height: '2.25rem' }} />
+                    <img id="app-logo" src="assets/layout/images/web_logo_header.png" alt="ultima-layout" style={{ height: '3.30rem' }} />
                 </button>
-                <button type="button" className="layout-menu-button shadow-6 p-link" onClick={props.onMenuButtonClick}>
+                <button type="button" className="layout-menu-button shadow-6 p-link" style={{ background: '#004a9b' }} onClick={props.onMenuButtonClick}>
                     <i className="pi pi-chevron-right"></i>
                 </button>
                 <button type="button" className="layout-topbar-mobile-button p-link">
@@ -301,184 +233,42 @@ const AppTopbar = (props) => {
 
             <div className={classNames('layout-topbar-right', { 'layout-topbar-mobile-active': props.mobileTopbarActive })}>
                 <div className="layout-topbar-actions-left">
-                    <MegaMenu model={model} className="layout-megamenu" />
+
                 </div>
                 <div className="layout-topbar-actions-right">
                     <ul className="layout-topbar-items">
-                        <li className="layout-topbar-item layout-search-item">
-                            <button className="layout-topbar-action rounded-circle p-link" onClick={() => props.onSearch(true)}>
-                                <i className="pi pi-search fs-large"></i>
-                            </button>
-                            <CSSTransition nodeRef={topbarRef1} classNames="p-toggleable" timeout={{ enter: 1000, exit: 450 }} in={props.searchActive} unmountOnExit>
-                                <div ref={topbarRef1} className="layout-search-panel p-inputgroup">
-                                    <span className="p-inputgroup-addon">
-                                        <i className="pi pi-search"></i>
-                                    </span>
-                                    <InputText type="text" placeholder="Search" onKeyDown={onInputKeydown} />
-                                    <span className="p-inputgroup-addon">
-                                        <Button type="button" icon="pi pi-times" className="p-button-rounded p-button-text p-button-plain" onClick={() => props.onSearch(false)}></Button>
-                                    </span>
-                                </div>
-                            </CSSTransition>
-                        </li>
-
                         <li className="layout-topbar-item notifications">
-                            <button className="layout-topbar-action rounded-circle p-link" onClick={(event) => props.onTopbarItemClick({ originalEvent: event, item: 'notifications' })}>
-                                <span className="p-overlay-badge">
-                                    <i className="pi pi-bell fs-large"></i>
-                                    <span className="p-badge p-badge-warning p-badge-dot"></span>
-                                </span>
-                            </button>
 
-                            <CSSTransition nodeRef={topbarRef2} classNames="p-toggleable" timeout={{ enter: 1000, exit: 450 }} in={props.activeTopbarItem === 'notifications'} unmountOnExit>
-                                <ul ref={topbarRef2} className="layout-topbar-action-panel shadow-6 fadeInDown">
-                                    <li className="mb-3">
-                                        <span className="px-3 fs-small">
-                                            You have <b>4</b> new notifications
-                                        </span>
-                                    </li>
-                                    <li className="layout-topbar-action-item">
-                                        <div className="flex flex-row align-items-center">
-                                            <img src="assets/demo/images/avatar/avatar-1.png" alt="" />
-                                            <div className={classNames('flex flex-column', { 'ml-3': !isRTL, 'mr-3': isRTL })} style={{ flexGrow: '1' }}>
-                                                <div className="flex align-items-center justify-content-between mb-1">
-                                                    <span className="fs-small font-bold">Jerome Bell</span>
-                                                    <small>42 mins ago</small>
-                                                </div>
-                                                <span className="fs-small">How to write content about your photographs?</span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li className="layout-topbar-action-item">
-                                        <div className="flex flex-row align-items-center">
-                                            <img src="assets/demo/images/avatar/avatar-2.png" alt="" />
-                                            <div className={classNames('flex flex-column', { 'ml-3': !isRTL, 'mr-3': isRTL })} style={{ flexGrow: '1' }}>
-                                                <div className="flex align-items-center justify-content-between mb-1">
-                                                    <span className="fs-small font-bold">Cameron Williamson</span>
-                                                    <small>48 mins ago</small>
-                                                </div>
-                                                <span className="fs-small">Start a blog to reach your creative peak.</span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li className="layout-topbar-action-item">
-                                        <div className="flex flex-row align-items-center">
-                                            <img src="assets/demo/images/avatar/avatar-3.png" alt="" />
-                                            <div className={classNames('flex flex-column', { 'ml-3': !isRTL, 'mr-3': isRTL })} style={{ flexGrow: '1' }}>
-                                                <div className="flex align-items-center justify-content-between mb-1">
-                                                    <span className="fs-small font-bold">Anna Miles</span>
-                                                    <small>1 day ago</small>
-                                                </div>
-                                                <span className="fs-small">Caring is the new marketing</span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li className="layout-topbar-action-item">
-                                        <div className="flex flex-row align-items-center">
-                                            <img src="assets/demo/images/avatar/avatar-4.png" alt="" />
-                                            <div className={classNames('flex flex-column', { 'ml-3': !isRTL, 'mr-3': isRTL })} style={{ flexGrow: '1' }}>
-                                                <div className="flex align-items-center justify-content-between mb-1">
-                                                    <span className="fs-small font-bold">Arlene Mccoy</span>
-                                                    <small>4 day ago</small>
-                                                </div>
-                                                <span className="fs-small">Starting your traveling blog with Vasco.</span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </CSSTransition>
-                        </li>
-                        <li className="layout-topbar-item app">
-                            <button className="layout-topbar-action rounded-circle p-link" onClick={(event) => props.onTopbarItemClick({ originalEvent: event, item: 'apps' })}>
-                                <i className="pi pi-table fs-large"></i>
-                            </button>
-
-                            <CSSTransition nodeRef={topbarRef3} classNames="p-toggleable" timeout={{ enter: 1000, exit: 450 }} in={props.activeTopbarItem === 'apps'} unmountOnExit>
-                                <div ref={topbarRef3} className="layout-topbar-action-panel shadow-6">
-                                    <div className="grid grid-nogutter">
-                                        <div className="layout-topbar-action-item col-4">
-                                            <button className="flex align-items-center flex-column text-color p-link">
-                                                <i className="pi pi-image action indigo-bgcolor white-color"></i>
-                                                <span>Products</span>
-                                            </button>
-                                        </div>
-                                        <div className="layout-topbar-action-item col-4">
-                                            <button className="flex align-items-center flex-column text-color p-link">
-                                                <i className="pi pi-file-pdf action orange-bgcolor white-color"></i>
-                                                <span>Reports</span>
-                                            </button>
-                                        </div>
-                                        <div className="layout-topbar-action-item col-4">
-                                            <button className="flex align-items-center flex-column text-color p-link">
-                                                <i className="pi pi-dollar action teal-bgcolor white-color"></i>
-                                                <span>Balance</span>
-                                            </button>
-                                        </div>
-                                        <div className="layout-topbar-action-item col-4">
-                                            <button className="flex align-items-center flex-column text-color p-link">
-                                                <i className="pi pi-cog action pink-bgcolor white-color"></i>
-                                                <span>Settings</span>
-                                            </button>
-                                        </div>
-                                        <div className="layout-topbar-action-item col-4">
-                                            <button className="flex align-items-center flex-column text-color p-link">
-                                                <i className="pi pi-key action bluegrey-bgcolor white-color"></i>
-                                                <span>Credentials</span>
-                                            </button>
-                                        </div>
-                                        <div className="layout-topbar-action-item col-4">
-                                            <button className="flex align-items-center justify-content-center flex-column text-color p-link">
-                                                <i className="pi pi-sitemap action cyan-bgcolor white-color"></i>
-                                                <span>Sitemap</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CSSTransition>
-                        </li>
-                        <li className="layout-topbar-item">
-                            <button className="layout-topbar-action flex flex-row justify-content-center align-items-center px-2 rounded-circle p-link" onClick={(event) => props.onTopbarItemClick({ originalEvent: event, item: 'profile' })}>
-                                <img src="assets/demo/images/avatar/amyelsner.png" alt="avatar" style={{ width: '32px', height: '32px' }} />
-                            </button>
-
-                            <CSSTransition nodeRef={topbarRef4} classNames="p-toggleable" timeout={{ enter: 1000, exit: 450 }} in={props.activeTopbarItem === 'profile'} unmountOnExit>
-                                <ul ref={topbarRef4} className="layout-topbar-action-panel shadow-6">
-                                    <li className="layout-topbar-action-item">
-                                        <button className="flex flex-row align-items-center p-link">
-                                            <i className={classNames('pi pi-cog', { 'mr-2': !isRTL, 'ml-2': isRTL })}></i>
-                                            <span>Settings</span>
-                                        </button>
-                                    </li>
-                                    <li className="layout-topbar-action-item">
-                                        <button className="flex flex-row align-items-center p-link">
-                                            <i className={classNames('pi pi-file', { 'mr-2': !isRTL, 'ml-2': isRTL })}></i>
-                                            <span>Terms of Usage</span>
-                                        </button>
-                                    </li>
-                                    <li className="layout-topbar-action-item ">
-                                        <button className="flex flex-row align-items-center p-link">
-                                            <i className={classNames('pi pi-compass', { 'mr-2': !isRTL, 'ml-2': isRTL })}></i>
-                                            <span>Support</span>
-                                        </button>
-                                    </li>
-                                    <li className="layout-topbar-action-item" onClick={handleLogout}>
-                                        <button className="flex flex-row align-items-center p-link">
-                                            <i className={classNames('pi pi-power-off', { 'mr-2': !isRTL, 'ml-2': isRTL })}></i>
-                                            <span>Logout</span>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </CSSTransition>
-                        </li>
-                        <li className="layout-topbar-item">
-                            <button type="button" className="layout-topbar-action rounded-circle p-link" onClick={props.onRightMenuButtonClick}>
-                                <i className="pi fs-large pi-arrow-left"></i>
-                            </button>
+                            <Button
+                                className="pi pi-cog p-button-icon p-link"
+                                onClick={toggleAppConfig} style={botonEstilo}
+                            ></Button>
                         </li>
                     </ul>
+                    <AppConfig active={showAppConfig} onHide={() => setShowAppConfig(false)}
+                inputStyle={inputStyle}
+                onInputStyleChange={onInputStyleChange}
+                rippleEffect={ripple}
+                onRippleEffect={onRipple}
+                menuMode={menuMode}
+                onMenuModeChange={onMenuModeChange}
+                inlineMenuPosition={inlineMenuPosition}
+                onInlineMenuPositionChange={onInlineMenuPositionChange}
+                colorMode={colorMode}
+                onColorModeChange={onColorModeChange}
+                menuTheme={menuTheme}
+                onMenuThemeChange={onMenuThemeChange}
+                topbarTheme={topbarTheme}
+                onTopbarThemeChange={onTopbarThemeChange}
+                theme={theme}
+                onThemeChange={onThemeChange}
+                isRTL={isRTL}
+                onRTLChange={onRTLChange} />
                 </div>
             </div>
+           
         </div>
+
     );
 };
 

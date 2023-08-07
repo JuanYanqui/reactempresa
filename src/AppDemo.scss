@@ -5,7 +5,16 @@
 		display: none;
 	}
 }
-
+/* Estilo para los elementos principales del menú */
+.layout-menu .main-menuitem > a {
+    font-weight: bold;
+  }
+.menu-toggle-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 100;
+  }
 .dataview-demo {
 	.p-dataview {
 		.car-details {

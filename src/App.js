@@ -3,41 +3,10 @@ import { classNames } from 'primereact/utils';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import AppTopbar from './AppTopbar';
-import AppBreadcrumb from './AppBreadcrumb';
 import AppInlineMenu from './AppInlineMenu';
-import AppFooter from './AppFooter';
 import AppMenu from './AppMenu';
 import AppConfig from './AppConfig';
-import AppRightMenu from './AppRightMenu';
 
-import Dashboard from './components/Dashboard';
-import DashboardAnalytics from './components/DashboardAnalytics';
-import ButtonDemo from './components/ButtonDemo';
-import ChartDemo from './components/ChartDemo';
-import MessagesDemo from './components/MessagesDemo';
-import Documentation from './components/Documentation';
-import FileDemo from './components/FileDemo';
-import FormLayoutDemo from './components/FormLayoutDemo';
-import InputDemo from './components/InputDemo';
-import ListDemo from './components/ListDemo';
-import MiscDemo from './components/MiscDemo';
-import MenuDemo from './components/MenuDemo';
-import OverlayDemo from './components/OverlayDemo';
-import PanelDemo from './components/PanelDemo';
-import TableDemo from './components/TableDemo';
-import TreeDemo from './components/TreeDemo';
-import FloatLabelDemo from './components/FloatLabelDemo';
-import InvalidStateDemo from './components/InvalidStateDemo';
-
-import BlocksDemo from './components/BlocksDemo';
-import IconsDemo from './utilities/IconsDemo';
-
-import Crud from './pages/Crud';
-import Calendar from './pages/Calendar';
-import EmptyPage from './pages/EmptyPage';
-import Invoice from './pages/Invoice';
-import Help from './pages/Help';
-import TimelineDemo from './pages/TimelineDemo';
 
 import PrimeReact from 'primereact/api';
 import { Tooltip } from 'primereact/tooltip';
@@ -47,15 +16,16 @@ import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import './App.scss';
 import { useNavigate } from 'react-router-dom';
-export const RTLContext = React.createContext();
+export const RTLContext = React.createContext()
 
 const App = ({ userData }) => {
+    const [theme, setTheme] = useState('indigo');
     const [menuMode, setMenuMode] = useState('static');
     const [inlineMenuPosition, setInlineMenuPosition] = useState('bottom');
     const [desktopMenuActive, setDesktopMenuActive] = useState(true);
     const [mobileMenuActive, setMobileMenuActive] = useState(false);
     const [activeTopbarItem, setActiveTopbarItem] = useState(null);
-    const [colorMode, setColorMode] = useState('light');
+    const [colorMode, setColorMode] = useState('dark');
     const [rightMenuActive, setRightMenuActive] = useState(false);
     const [menuActive, setMenuActive] = useState(false);
     const [inputStyle, setInputStyle] = useState('filled');
@@ -64,7 +34,6 @@ const App = ({ userData }) => {
     const [mobileTopbarActive, setMobileTopbarActive] = useState(false);
     const [menuTheme, setMenuTheme] = useState('light');
     const [topbarTheme, setTopbarTheme] = useState('blue');
-    const [theme, setTheme] = useState('indigo');
     const [isInputBackgroundChanged, setIsInputBackgroundChanged] = useState(false);
     const [inlineMenuActive, setInlineMenuActive] = useState({});
     const [newThemeLoaded, setNewThemeLoaded] = useState(false);
@@ -74,6 +43,7 @@ const App = ({ userData }) => {
     const location = useLocation();
 
     PrimeReact.ripple = true;
+ 
 
     let searchClick;
     let topbarItemClick;
@@ -110,7 +80,7 @@ const App = ({ userData }) => {
             }))
         }));
     };
-  
+
 
     const generateRoutesFromUserData = (userData) => {
         if (!userData || !userData.object) {
@@ -133,30 +103,30 @@ const App = ({ userData }) => {
             }
         });
 
-        
+
     }
 
 
     const menu = generateMenuFromUserData(userData);
     const routes = generateRoutesFromUserData(userData);
 
-const onMenuItemClick = (event) => {
-    console.log('Clicked menu item:', event.item.to);
-    if (!event.item.items && (menuMode === 'overlay' || !isDesktop())) {
-        hideOverlayMenu();
-    }
 
-    if (!event.item.items && (isHorizontal() || isSlim())) {
-        setMenuActive(false);
-    }
+    const onMenuItemClick = (event, item) => {
+        if (!item.items) {
+            // Aquí puedes manejar la lógica al hacer clic en un elemento del menú que no tiene submenús
+            console.log('Clicked menu item:', item.to);
+            hideOverlayMenu();
+        } else {
+            // Si el elemento tiene submenús, el estado del menú activo ya se manejará en el componente AppMenu
+            event.preventDefault();
+        }
 
-    if (event.item.to) {
-        const  url = event.item.to;
-        console.log('URL:', url);
-
-        redirectToExternalUrl(url); 
-    }
-};
+        if (item.to) {
+            const url = item.to;
+            console.log('URL:', url);
+            redirectToExternalUrl(url);
+        }
+    };
 
 
     useEffect(() => {
@@ -309,12 +279,12 @@ const onMenuItemClick = (event) => {
         event.originalEvent.preventDefault();
     };
 
-   const onSearch = (event) => {
-    if (event) {
-        searchClick = true;
-        setSearchActive(event);
-    }
-};
+    const onSearch = (event) => {
+        if (event) {
+            searchClick = true;
+            setSearchActive(event);
+        }
+    };
 
 
     const onRootMenuItemClick = (event) => {
@@ -394,7 +364,19 @@ const onMenuItemClick = (event) => {
         currentInlineMenuKey.current = key;
         inlineMenuClick = true;
     };
-
+    const renderInlineMenu = () => {
+        if (inlineMenuPosition === 'top') {
+          return (
+            <AppInlineMenu menuKey="top" inlineMenuActive={inlineMenuActive} onInlineMenuClick={onInlineMenuClick} horizontal={isHorizontal()} menuMode={menuMode} />
+          );
+        } else if (inlineMenuPosition === 'bottom') {
+          return (
+            <AppInlineMenu menuKey="bottom" inlineMenuActive={inlineMenuActive} onInlineMenuClick={onInlineMenuClick} horizontal={isHorizontal()} menuMode={menuMode} />
+          );
+        }
+    
+        return null;
+      };
     const layoutContainerClassName = classNames('layout-wrapper ', 'layout-menu-' + menuTheme + ' layout-topbar-' + topbarTheme, {
         'layout-menu-static': menuMode === 'static',
         'layout-menu-overlay': menuMode === 'overlay',
@@ -407,76 +389,34 @@ const onMenuItemClick = (event) => {
         'p-input-filled': inputStyle === 'filled',
         'p-ripple-disabled': !ripple,
         'layout-rtl': isRTL
-    });
-
-    return (
+      });
+      return (
         <RTLContext.Provider value={isRTL}>
-            <div className={layoutContainerClassName} onClick={onDocumentClick}>
-                <Tooltip ref={copyTooltipRef} target=".block-action-copy" position="bottom" content="Copied to clipboard" event="focus" />
-
-                <AppTopbar
-                    horizontal={isHorizontal()}
-                    activeTopbarItem={activeTopbarItem}
-                    onMenuButtonClick={onMenuButtonClick}
-                    onTopbarItemClick={onTopbarItemClick}
-                    onRightMenuButtonClick={onRightMenuButtonClick}
-                    onMobileTopbarButtonClick={onMobileTopbarButtonClick}
-                    mobileTopbarActive={mobileTopbarActive}
-                    searchActive={searchActive}
-                    onSearch={onSearch}
-                />
-
-                <div className="menu-wrapper" onClick={onMenuClick}>
-
-
-                    <div className="layout-menu-container">
-                        {(inlineMenuPosition === 'top' || inlineMenuPosition === 'both') && <AppInlineMenu menuKey="top" inlineMenuActive={inlineMenuActive} onInlineMenuClick={onInlineMenuClick} horizontal={isHorizontal()} menuMode={menuMode} />}
-                        <AppMenu model={menu} onMenuItemClick={onMenuItemClick} onRootMenuItemClick={onRootMenuItemClick} menuMode={menuMode} active={menuActive} />
-                        {(inlineMenuPosition === 'bottom' || inlineMenuPosition === 'both') && (
-                            <AppInlineMenu menuKey="bottom" inlineMenuActive={inlineMenuActive} onInlineMenuClick={onInlineMenuClick} horizontal={isHorizontal()} menuMode={menuMode} />
-                        )}
-                    </div>
-                </div>
-
-                <div className="layout-main">
-
-                    <div className="layout-content">
-                        <Routes>
-                            <Route path="/" element={<Dashboard colorMode={colorMode} isNewThemeLoaded={newThemeLoaded} onNewThemeChange={(e) => setNewThemeLoaded(e)} location={location} />} />
-                            {/* ... Other routes ... */}
-                        </Routes>
-                    </div>
-
-                    <AppFooter colorMode={colorMode} />
-                </div>
-
-                <AppConfig
-                    inputStyle={inputStyle}
-                    onInputStyleChange={onInputStyleChange}
-                    rippleEffect={ripple}
-                    onRippleEffect={onRipple}
-                    menuMode={menuMode}
-                    onMenuModeChange={onMenuModeChange}
-                    inlineMenuPosition={inlineMenuPosition}
-                    onInlineMenuPositionChange={onInlineMenuPositionChange}
-                    colorMode={colorMode}
-                    onColorModeChange={onColorModeChange}
-                    menuTheme={menuTheme}
-                    onMenuThemeChange={onMenuThemeChange}
-                    topbarTheme={topbarTheme}
-                    onTopbarThemeChange={onTopbarThemeChange}
-                    theme={theme}
-                    onThemeChange={onThemeChange}
-                    isRTL={isRTL}
-                    onRTLChange={onRTLChange}
-                />
-
-                <AppRightMenu rightMenuActive={rightMenuActive} onRightMenuButtonClick={onRightMenuButtonClick} />
-
-                {mobileMenuActive && <div className="layout-mask modal-in"></div>}
+          <div className={layoutContainerClassName} onClick={onDocumentClick}>
+            <Tooltip ref={copyTooltipRef} target=".block-action-copy" position="bottom" content="Copied to clipboard" event="focus" />
+    
+            <AppTopbar
+              horizontal={isHorizontal()}
+              activeTopbarItem={activeTopbarItem}
+              onMenuButtonClick={onMenuButtonClick}
+              onTopbarItemClick={onTopbarItemClick}
+              onRightMenuButtonClick={onRightMenuButtonClick}
+              onMobileTopbarButtonClick={onMobileTopbarButtonClick}
+              mobileTopbarActive={mobileTopbarActive}
+              searchActive={searchActive}
+              onSearch={onSearch}
+            />
+    
+            <div className="menu-wrapper" onClick={onMenuClick}>
+              <div className="layout-menu-container">
+                {renderInlineMenu()}
+                <AppMenu model={menu} onMenuItemClick={onMenuItemClick} onRootMenuItemClick={onRootMenuItemClick} menuMode={menuMode} active={menuActive} />
+              </div>
             </div>
+     
+          </div>
         </RTLContext.Provider>
-    );
-};
+      );
 
+};
 export default App;
