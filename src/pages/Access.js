@@ -14,7 +14,7 @@ const Access = () => {
             <div className="topbar p-3 flex justify-content-between flex-row align-items-center">
                 <div className="topbar-left ml-3 flex">
                     <div className="logo">
-                        <img src="assets/layout/images/logo2x.png" alt="" />
+                        <img src="assets/layout/images/web_logo_header.png" alt="" />
                     </div>
                 </div>
                 <div className="topbar-right mr-3 flex">

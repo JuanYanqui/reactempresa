@@ -10,29 +10,29 @@ import AppConfig from './AppConfig';
 
 import PrimeReact from 'primereact/api';
 import { Tooltip } from 'primereact/tooltip';
-
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import './App.scss';
 import { useNavigate } from 'react-router-dom';
+import '@fortawesome/fontawesome-free/css/all.css';
 export const RTLContext = React.createContext()
 
-const App = ({ userData }) => {
+const App = () => {
+    const [colorMode, setColorMode] = useState('light');
     const [theme, setTheme] = useState('indigo');
     const [menuMode, setMenuMode] = useState('static');
     const [inlineMenuPosition, setInlineMenuPosition] = useState('bottom');
     const [desktopMenuActive, setDesktopMenuActive] = useState(true);
     const [mobileMenuActive, setMobileMenuActive] = useState(false);
     const [activeTopbarItem, setActiveTopbarItem] = useState(null);
-    const [colorMode, setColorMode] = useState('dark');
     const [rightMenuActive, setRightMenuActive] = useState(false);
     const [menuActive, setMenuActive] = useState(false);
     const [inputStyle, setInputStyle] = useState('filled');
     const [isRTL, setRTL] = useState(false);
     const [ripple, setRipple] = useState(true);
     const [mobileTopbarActive, setMobileTopbarActive] = useState(false);
-    const [menuTheme, setMenuTheme] = useState('light');
+    const [menuTheme, setMenuTheme] = useState('dark');
     const [topbarTheme, setTopbarTheme] = useState('blue');
     const [isInputBackgroundChanged, setIsInputBackgroundChanged] = useState(false);
     const [inlineMenuActive, setInlineMenuActive] = useState({});
@@ -43,13 +43,75 @@ const App = ({ userData }) => {
     const location = useLocation();
 
     PrimeReact.ripple = true;
- 
+
 
     let searchClick;
     let topbarItemClick;
     let menuClick;
     let inlineMenuClick;
     const navigate = useNavigate();
+    const userData = {
+        object: [
+            {
+                menId: 652,
+                nombre: "Coral Seccion",
+                url: "https://www.gerardoortiz.com/coralSeccion/",
+                icono: "fa fa-tags",
+                hijos: [
+                    {
+                        menId: 653,
+                        nombre: "Reporte Factura TEST",
+                        url: "https://www.gerardoortiz.com/coralSeccion/reportes/factura_codigo_cliente.jsf",
+                        icono: "fa fa-crosshairs"
+                    },
+                    {
+                        menId: 658,
+                        nombre: "Precio historico de articulo",
+                        url: "https://www.gerardoortiz.com/coralSeccion/reportes/ingresos_historicos.jsf",
+                        icono: "fa fa-dollar"
+                    }
+                ]
+            },
+            {
+                menId: 805,
+                nombre: "Activos Fijos",
+                url: "#",
+                icono: "fas fa-book",
+                hijos: [
+                    {
+                        menId: 806,
+                        nombre: "Formar Activo",
+                        url: "https://www.gerardoortiz.com/activosFijos/activosFijos/formaActivo.jsf",
+                        icono: "fas fa-clipboard-list"
+                    },
+                    {
+                        menId: 807,
+                        nombre: "Ingresar Activo",
+                        url: "https://www.gerardoortiz.com/activosFijos/activosFijos/ingresaActivo.jsf",
+                        icono: "fas fa-clipboard-list"
+                    },
+                    {
+                        menId: 808,
+                        nombre: "Recepcion Entrega",
+                        url: "https://www.gerardoortiz.com/activosFijos/activosFijos/recepcionEntrega.jsf",
+                        icono: "fas fa-clipboard-list"
+                    },
+                    {
+                        menId: 809,
+                        nombre: "Depreciacion del Activo",
+                        url: "https://www.gerardoortiz.com/activosFijos/activosFijos/depreciaActivo.jsf",
+                        icono: "fas fa-clipboard-list"
+                    },
+                    {
+                        menId: 810,
+                        nombre: "Gestion Sitio",
+                        url: "https://www.gerardoortiz.com/activosFijos/activosFijos/gestionSitio.jsf",
+                        icono: "fas fa-clipboard-list"
+                    }
+                ]
+            }
+        ]
+    };
     const redirectToExternalUrl = (url) => {
         if (url) {
             if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -75,7 +137,8 @@ const App = ({ userData }) => {
             items: item.hijos && item.hijos.map((hijo) => ({
                 key: hijo.menId,
                 label: hijo.nombre,
-                to: hijo.url
+                to: hijo.url,
+                icon: hijo.icono
 
             }))
         }));
@@ -159,7 +222,7 @@ const App = ({ userData }) => {
         if (topbarTheme === 'white' || topbarTheme === 'yellow' || topbarTheme === 'amber' || topbarTheme === 'orange' || topbarTheme === 'lime') {
             appLogoLink.src = 'assets/layout/images/logo-dark.svg';
         } else {
-            appLogoLink.src = 'assets/layout/images/logo-light.svg';
+            appLogoLink.src = 'assets/layout/images/web_logo_header.png';
         }
     }, [topbarTheme]);
 
@@ -182,7 +245,7 @@ const App = ({ userData }) => {
             }
         }
 
-        if (mode === 'dark') {
+        if (mode === 'light') {
             setMenuTheme('dark');
             setTopbarTheme('dark');
         } else {
@@ -366,17 +429,26 @@ const App = ({ userData }) => {
     };
     const renderInlineMenu = () => {
         if (inlineMenuPosition === 'top') {
-          return (
-            <AppInlineMenu menuKey="top" inlineMenuActive={inlineMenuActive} onInlineMenuClick={onInlineMenuClick} horizontal={isHorizontal()} menuMode={menuMode} />
-          );
+            return (
+                <AppInlineMenu menuKey="top" inlineMenuActive={inlineMenuActive} onInlineMenuClick={onInlineMenuClick} horizontal={isHorizontal()} menuMode={menuMode} />
+            );
         } else if (inlineMenuPosition === 'bottom') {
-          return (
-            <AppInlineMenu menuKey="bottom" inlineMenuActive={inlineMenuActive} onInlineMenuClick={onInlineMenuClick} horizontal={isHorizontal()} menuMode={menuMode} />
-          );
+            return (
+                <AppInlineMenu menuKey="bottom" inlineMenuActive={inlineMenuActive} onInlineMenuClick={onInlineMenuClick} horizontal={isHorizontal()} menuMode={menuMode} />
+            );
         }
-    
+
         return null;
-      };
+    };
+
+    const [searchTerm, setSearchTerm] = useState(''); // Agrega esta línea
+
+    const handleSearchInputChange = (event) => {
+        setSearchTerm(event.target.value);
+    };
+    const botonEstilo2 = {
+        color: "#ffffff",
+    };
     const layoutContainerClassName = classNames('layout-wrapper ', 'layout-menu-' + menuTheme + ' layout-topbar-' + topbarTheme, {
         'layout-menu-static': menuMode === 'static',
         'layout-menu-overlay': menuMode === 'overlay',
@@ -389,34 +461,46 @@ const App = ({ userData }) => {
         'p-input-filled': inputStyle === 'filled',
         'p-ripple-disabled': !ripple,
         'layout-rtl': isRTL
-      });
-      return (
+    });
+    return (
         <RTLContext.Provider value={isRTL}>
-          <div className={layoutContainerClassName} onClick={onDocumentClick}>
-            <Tooltip ref={copyTooltipRef} target=".block-action-copy" position="bottom" content="Copied to clipboard" event="focus" />
-    
-            <AppTopbar
-              horizontal={isHorizontal()}
-              activeTopbarItem={activeTopbarItem}
-              onMenuButtonClick={onMenuButtonClick}
-              onTopbarItemClick={onTopbarItemClick}
-              onRightMenuButtonClick={onRightMenuButtonClick}
-              onMobileTopbarButtonClick={onMobileTopbarButtonClick}
-              mobileTopbarActive={mobileTopbarActive}
-              searchActive={searchActive}
-              onSearch={onSearch}
-            />
-    
-            <div className="menu-wrapper" onClick={onMenuClick}>
-              <div className="layout-menu-container">
-                {renderInlineMenu()}
-                <AppMenu model={menu} onMenuItemClick={onMenuItemClick} onRootMenuItemClick={onRootMenuItemClick} menuMode={menuMode} active={menuActive} />
-              </div>
+            <div className={layoutContainerClassName} onClick={onDocumentClick}>
+                <Tooltip ref={copyTooltipRef} target=".block-action-copy" position="bottom" content="Copied to clipboard" event="focus" />
+
+                <AppTopbar
+                    horizontal={isHorizontal()}
+                    activeTopbarItem={activeTopbarItem}
+                    onMenuButtonClick={onMenuButtonClick}
+                    onTopbarItemClick={onTopbarItemClick}
+                    onRightMenuButtonClick={onRightMenuButtonClick}
+                    onMobileTopbarButtonClick={onMobileTopbarButtonClick}
+                    mobileTopbarActive={mobileTopbarActive}
+                    searchActive={searchActive}
+                    onSearch={onSearch}
+                />
+
+                <div className="menu-wrapper" onClick={onMenuClick} style={{ backgroundColor: '#2b3135' }}>
+                    <div className="layout-menu-container" style={{ backgroundColor: '#2b3135' }}>
+                        <div>
+                        <div style={{ height: '20px' }}></div>
+                            <i className="fas fa-search" style={botonEstilo2}></i>
+                            <input
+                                type="text"
+                                placeholder="Buscar menú..."
+                                value={searchTerm}
+                                onChange={handleSearchInputChange}
+                                className="search-input"
+                                style={{ marginLeft: 'auto', marginRight: 'auto' }} // Center the input
+                            />
+                        </div>
+                        <AppMenu model={menu} onMenuItemClick={onMenuItemClick} onRootMenuItemClick={onRootMenuItemClick} menuMode={menuMode} active={menuActive} searchTerm={searchTerm} />
+                    </div>
+                </div>
+
+
             </div>
-     
-          </div>
         </RTLContext.Provider>
-      );
+    );
 
 };
 export default App;

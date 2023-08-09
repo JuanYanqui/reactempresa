@@ -9,6 +9,64 @@
 .layout-menu .main-menuitem > a {
     font-weight: bold;
   }
+  .dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropdown-toggle {
+    padding: 10px 15px;
+    background-color: #575656;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  
+  .layout-inline-menu-action-panel {
+    position: absolute;
+    top: 100%;
+    right: 0; /* Cambiar de 'left' a 'right' */
+    width: 200px; /* Ajusta el ancho según sea necesario */
+    background-color: rgba(62,70,76,255);
+    border: 1px solid #ccc;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: right; /* Alinear el contenido a la derecha */
+    width: 120px;
+}
+
+.layout-inline-menu-action-item {
+    text-align: right; /* Alinear el contenido a la derecha */
+    
+}
+  
+
+  .dropdown-toggle {
+    margin-right: 20px; /* Adjust the margin value as needed */
+}
+  
+  .layout-inline-menu-action-item {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+  }
+  
+  .layout-inline-menu-action-item:last-child {
+    border-bottom: none;
+  }
+  
+  .p-link {
+    display: flex;
+    align-items: center;
+  }
+  
+  .pi {
+    font-size: 1.5rem;
+    margin-right: 10px;
+  }
+
 .menu-toggle-button {
     position: absolute;
     top: 10px;

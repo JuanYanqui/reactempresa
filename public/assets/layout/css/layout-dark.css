@@ -692,7 +692,7 @@ body .p-overlay-badge .p-badge {
   left: 0;
   z-index: 998;
   width: 100%;
-  height: 4rem;
+  height: 5.5rem;
   transition: width 0.2s;
   display: flex;
 }
@@ -765,7 +765,7 @@ body .p-overlay-badge .p-badge {
   flex-grow: 1;
   align-items: center;
   justify-content: space-between;
-  padding-left: 2rem;
+  padding-left: 5.5rem;
   height: 100%;
 }
 .layout-topbar .layout-topbar-right .layout-topbar-actions-left {

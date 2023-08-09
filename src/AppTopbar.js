@@ -10,6 +10,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import AppInlineMenu from './AppInlineMenu';
 import AppMenu from './AppMenu';
 import AppConfig from './AppConfig';
+import { Dropdown } from 'primereact/dropdown';
 
 import PrimeReact from 'primereact/api';
 import { Tooltip } from 'primereact/tooltip';
@@ -73,9 +74,9 @@ const AppTopbar = (props) => {
         const appLogoLink = document.getElementById('app-logo');
 
         if (topbarTheme === 'white' || topbarTheme === 'yellow' || topbarTheme === 'amber' || topbarTheme === 'orange' || topbarTheme === 'lime') {
-            appLogoLink.src = 'assets/layout/images/logo-dark.svg';
+            appLogoLink.src = 'assets/layout/images/web_logo_header.png';
         } else {
-            appLogoLink.src = 'assets/layout/images/logo-light.svg';
+            appLogoLink.src = 'assets/layout/images/web_logo_header.png';
         }
     }, [topbarTheme]);
 
@@ -217,13 +218,51 @@ const AppTopbar = (props) => {
     const botonEstilo = {
         fontSize: '24px',
     };
+
+    const botonEstilo2 = {
+        fontSize: '35px',
+        color: "#ffffff",
+        background: "#5180ce"
+    };
+    const [showAdditionalButtons, setShowAdditionalButtons] = useState(false);
+
+
+    const options = [
+        { label: 'Settings', value: 'settings', icon: 'pi pi-cog' },
+        { label: 'Terms of Usage', value: 'terms', icon: 'pi pi-file' },
+        { label: 'Support', value: 'support', icon: 'pi pi-compass' },
+        { label: 'Logout', value: 'logout', icon: 'pi pi-power-off' }
+    ];
+    const toggleAdditionalButtons = (selectedOption) => {
+        setSelectedOption(selectedOption);
+        setShowAdditionalButtons(!showAdditionalButtons);
+    };
+
+    
+const handleLogout = () => {
+    localStorage.removeItem('usernamecap');
+   localStorage.removeItem('nombrecap');
+   localStorage.removeItem('apellidocap');
+   localStorage.removeItem('emailcap');
+
+    const keycloakConfig = JSON.parse(localStorage.getItem('keycloakConfig'));
+    window.location.href = keycloakConfig.url + 'realms/' + keycloakConfig.realm + '/protocol/openid-connect/logout?redirect_uri=' + encodeURIComponent(window.location.origin);
+};
+
+    const inlineMenuRef = useRef(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
+    const [selectedOption, setSelectedOption] = useState(null);
     return (
-        <div className="layout-topbar shadow-4">
+        <div className="layout-topbar shadow-4" style={{ backgroundColor: '#3e464c' }} >
             <div className="layout-topbar-left">
-                <button type="button" style={{ cursor: 'pointer' }} className="layout-topbar-logo p-link" onClick={() => navigate('/')}>
-                    <img id="app-logo" src="assets/layout/images/web_logo_header.png" alt="ultima-layout" style={{ height: '3.30rem' }} />
+                <button type="button" style={{ cursor: 'pointer', background: '#2b3135' }} className="layout-topbar-logo p-link" onClick={() => navigate('/')}>
+                    <img id="app-logo" src="assets/layout/images/web_logo_header.png" alt="ultima-layout" style={{ height: '2.5rem' }} />
                 </button>
-                <button type="button" className="layout-menu-button shadow-6 p-link" style={{ background: '#004a9b' }} onClick={props.onMenuButtonClick}>
+                <button type="button" className="layout-menu-button shadow-6 p-link" style={{ background: '#5180ce' }} onClick={props.onMenuButtonClick}>
                     <i className="pi pi-chevron-right"></i>
                 </button>
                 <button type="button" className="layout-topbar-mobile-button p-link">
@@ -238,35 +277,44 @@ const AppTopbar = (props) => {
                 <div className="layout-topbar-actions-right">
                     <ul className="layout-topbar-items">
                         <li className="layout-topbar-item notifications">
-
-                            <Button
-                                className="pi pi-cog p-button-icon p-link"
-                                onClick={toggleAppConfig} style={botonEstilo}
-                            ></Button>
+                            <div className="dropdown-container">
+                            <button className="dropdown-toggle" onClick={toggleMenu} style={{ background: 'transparent', border: 'none', padding: '0' }}>
+    <i className="pi pi-cog p-button-icon p-link" style={{ fontSize: '35px' }}></i>
+</button>
+                                {isMenuOpen && (
+                                    <ul ref={inlineMenuRef} className="layout-inline-menu-action-panel custom-dropdown-panel">
+                                        <li className="layout-inline-menu-action-item tooltip" data-pr-tooltip="Settings">
+                                            <button className="flex flex-row align-items-center p-link">
+                                                <i className="pi pi-cog pi-fw"></i>
+                                                <span>Settings</span>
+                                            </button>
+                                        </li>
+                                        <li className="layout-inline-menu-action-item tooltip" data-pr-tooltip="Terms of Usage">
+                                            <button className="flex flex-row align-items-center p-link">
+                                                <i className="pi pi-file pi-fw"></i>
+                                                <span>Terms of Usage</span>
+                                            </button>
+                                        </li>
+                                        <li className="layout-inline-menu-action-item tooltip" data-pr-tooltip="Support">
+                                            <button className="flex flex-row align-items-center p-link">
+                                                <i className="pi pi-compass pi-fw"></i>
+                                                <span>Support</span>
+                                            </button>
+                                        </li>
+                                        <li className="layout-inline-menu-action-item tooltip" data-pr-tooltip="Logout">
+                                            <button className="flex flex-row align-items-center p-link" onClick={handleLogout}>
+                                                <i className="pi pi-power-off pi-fw"></i>
+                                                <span>Logout</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                )}
+                            </div>
                         </li>
                     </ul>
-                    <AppConfig active={showAppConfig} onHide={() => setShowAppConfig(false)}
-                inputStyle={inputStyle}
-                onInputStyleChange={onInputStyleChange}
-                rippleEffect={ripple}
-                onRippleEffect={onRipple}
-                menuMode={menuMode}
-                onMenuModeChange={onMenuModeChange}
-                inlineMenuPosition={inlineMenuPosition}
-                onInlineMenuPositionChange={onInlineMenuPositionChange}
-                colorMode={colorMode}
-                onColorModeChange={onColorModeChange}
-                menuTheme={menuTheme}
-                onMenuThemeChange={onMenuThemeChange}
-                topbarTheme={topbarTheme}
-                onTopbarThemeChange={onTopbarThemeChange}
-                theme={theme}
-                onThemeChange={onThemeChange}
-                isRTL={isRTL}
-                onRTLChange={onRTLChange} />
                 </div>
             </div>
-           
+
         </div>
 
     );
